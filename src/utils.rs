@@ -1,15 +1,16 @@
-pub(crate) fn extract_digits(s: &str) -> (&str, &str) {
-    let len = s
+pub(crate) fn take_while(accpet: impl Fn(char) -> bool, s: &str) -> (&str, &str) {
+    let extracted_end = s
         .char_indices()
-        .find_map(|(idx, c)| {
-            if c.is_ascii_alphanumeric() {
-                None
-            } else {
-                Some(idx)
-            }
-        })
+        .find_map(|(idx, c)| if accpet(c) { None } else { Some(idx) })
         .unwrap_or_else(|| s.len());
-    (&s[len..], &s[..len])
+
+    let extracted = &s[..extracted_end];
+    let remainder = &s[extracted_end..];
+    (remainder, extracted)
+}
+
+pub(crate) fn extract_digits(s: &str) -> (&str, &str) {
+    take_while(|c| c.is_ascii_digit(), s)
 }
 
 pub(crate) fn extract_op(s: &str) -> (&str, &str) {
@@ -18,6 +19,10 @@ pub(crate) fn extract_op(s: &str) -> (&str, &str) {
         _ => panic!("bad operator"),
     };
     (&s[1..], &s[..1])
+}
+
+pub(crate) fn extract_whitespace(s: &str) -> (&str, &str) {
+    take_while(|c| c == ' ', s)
 }
 
 #[cfg(test)]
@@ -62,5 +67,10 @@ mod tests {
     #[test]
     fn extract_slash() {
         assert_eq!(extract_op("/4"), ("4", "/"));
+    }
+
+    #[test]
+    fn extract_spaces() {
+        assert_eq!(extract_whitespace("    1"), ("1", "    "));
     }
 }
