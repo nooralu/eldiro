@@ -2,7 +2,7 @@ use crate::{env::Env, utils, val::Val};
 
 #[derive(Debug, PartialEq)]
 pub struct BindingUsage {
-    name: String,
+    pub name: String,
 }
 
 impl BindingUsage {

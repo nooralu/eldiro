@@ -1,7 +1,7 @@
 pub mod binding_def;
 pub mod expr;
+pub mod stmt;
 
-mod binding_usage;
 mod env;
 mod utils;
 mod val;
