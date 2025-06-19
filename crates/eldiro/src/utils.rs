@@ -1,8 +1,8 @@
-pub(crate) fn take_while(accepet: impl Fn(char) -> bool, s: &str) -> (&str, &str) {
+pub(crate) fn take_while(accept: impl Fn(char) -> bool, s: &str) -> (&str, &str) {
     let extracted_end = s
         .char_indices()
-        .find_map(|(idx, c)| if accepet(c) { None } else { Some(idx) })
-        .unwrap_or_else(|| s.len());
+        .find_map(|(idx, c)| if accept(c) { None } else { Some(idx) })
+        .unwrap_or(s.len());
 
     let extracted = &s[..extracted_end];
     let remainder = &s[extracted_end..];
@@ -54,12 +54,28 @@ pub(crate) fn extract_ident(s: &str) -> Result<(&str, &str), String> {
     }
 }
 
-pub(crate) fn tag<'a, 'b>(start_text: &'a str, s: &'b str) -> Result<&'b str, String> {
-    if s.starts_with(start_text) {
-        Ok(&s[start_text.len()..])
+pub(crate) fn tag<'a>(start_text: &str, s: &'a str) -> Result<&'a str, String> {
+    if let Some(stripped) = s.strip_prefix(start_text) {
+        Ok(stripped)
     } else {
         Err(format!("expected {}", start_text))
     }
+}
+
+pub(crate) fn sequence<T>(
+    parser: impl Fn(&str) -> Result<(&str, T), String>,
+    mut s: &str,
+) -> Result<(&str, Vec<T>), String> {
+    let mut items = Vec::new();
+
+    while let Ok((new_s, item)) = parser(s) {
+        s = new_s;
+        items.push(item);
+
+        let (new_s, _) = extract_whitespace(s);
+        s = new_s;
+    }
+    Ok((s, items))
 }
 
 #[cfg(test)]

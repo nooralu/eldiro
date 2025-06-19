@@ -3,6 +3,7 @@ pub mod expr;
 pub mod stmt;
 
 mod env;
+mod func_def;
 mod utils;
 mod val;
 
@@ -14,7 +15,7 @@ pub struct Parse(stmt::Stmt);
 
 impl Parse {
     pub fn eval(&self, env: &mut Env) -> Result<Val, String> {
-      self.0.eval(env)
+        self.0.eval(env)
     }
 }
 
